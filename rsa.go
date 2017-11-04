@@ -23,19 +23,19 @@ type RSAPrivate struct {
 func processRSAPublic(key *rsa.PublicKey) *RSAPublic {
   return &RSAPublic{
     JWK: &JWK{KeyType: "RSA"},
-    Modulus: asn1b64Encode(key.N),
-    PublicExponent: asn1b64Encode(key.E),
+    Modulus: b64EncodeBigInt(key.N),
+    PublicExponent: b64EncodeInt64(int64(key.E)),
   }
 }
 
 func processRSAPrivate(key *rsa.PrivateKey) *RSAPrivate {
   return &RSAPrivate{
     RSAPublic: processRSAPublic(&key.PublicKey),
-    PrivateExponent: asn1b64Encode(key.D),
-    Prime1: asn1b64Encode(key.Primes[0]),
-    Prime2: asn1b64Encode(key.Primes[1]),
-    Exponent1: asn1b64Encode(key.Precomputed.Dp),
-    Exponent2: asn1b64Encode(key.Precomputed.Dq),
-    Coefficient: asn1b64Encode(key.Precomputed.Qinv),
+    PrivateExponent: b64EncodeBigInt(key.D),
+    Prime1: b64EncodeBigInt(key.Primes[0]),
+    Prime2: b64EncodeBigInt(key.Primes[1]),
+    Exponent1: b64EncodeBigInt(key.Precomputed.Dp),
+    Exponent2: b64EncodeBigInt(key.Precomputed.Dq),
+    Coefficient: b64EncodeBigInt(key.Precomputed.Qinv),
   }
 }

@@ -1,12 +1,14 @@
 package main
 
 import (
-  "encoding/asn1"
   "encoding/base64"
+  "math/big"
 )
 
-func asn1b64Encode(val interface{}) string {
-  asn1Enc, err := asn1.Marshal(val)
-  stopOnParseError(err)
-  return base64.RawURLEncoding.EncodeToString(asn1Enc)
+func b64EncodeInt64(i64 int64) string {
+  return b64EncodeBigInt(big.NewInt(i64))
+}
+
+func b64EncodeBigInt(bigInt *big.Int) string {
+  return base64.RawURLEncoding.EncodeToString(bigInt.Bytes())
 }

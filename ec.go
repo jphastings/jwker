@@ -20,14 +20,14 @@ func processECPublic(key *ecdsa.PublicKey) *ECPublic {
   return &ECPublic{
     JWK: &JWK{KeyType: "EC"},
     Curve: key.Params().Name,
-    X: asn1b64Encode(key.X),
-    Y: asn1b64Encode(key.Y),
+    X: b64EncodeBigInt(key.X),
+    Y: b64EncodeBigInt(key.Y),
   }
 }
 
 func processECPrivate(key *ecdsa.PrivateKey) *ECPrivate {
   return &ECPrivate{
     ECPublic: processECPublic(&key.PublicKey),
-    D: asn1b64Encode(key.D),
+    D: b64EncodeBigInt(key.D),
   }
 }

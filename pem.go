@@ -7,7 +7,7 @@ import (
   "encoding/pem"
 )
 
-func pemToJwk(pemBytes []byte) string {
+func PemToJwk(pemBytes []byte) string {
   keyStruct := processBlock(pemBytes)
   return structToJWK(keyStruct)
 }

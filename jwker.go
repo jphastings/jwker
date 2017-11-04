@@ -28,9 +28,9 @@ func main() {
 
   switch bytes[0] {
   case 45:
-    fmt.Print(pemToJwk(bytes))
+    fmt.Print(PemToJwk(bytes))
   case 123:
-    fmt.Print(jwkToPem(bytes))
+    fmt.Print(JwkToPem(bytes))
   default:
     fmt.Print(bytes[0])
     throwParseError("unknown input file format")

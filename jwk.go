@@ -10,7 +10,7 @@ type JWK struct {
   KeyType string `json:"kty"`
 }
 
-func jwkToPem(jwkBytes []byte) string {
+func JwkToPem(jwkBytes []byte) string {
   throwParseError("JWK parsing is not implemented yet :(")
   return ""
 }
