@@ -13,8 +13,8 @@ Example usage:
   jwker key.pem > key.jwk
   jwker key.jwk > key.pem
 
-Create a new keypair, save the public key to a JWK and
-save the private key as a PEM, but with a passphrase:
+Create a new keypair, save the public key as a JWK and
+the private key as a PEM, but with a passphrase:
 
   openssl ecparam -genkey -name prime256v1 \
   | tee >(openssl ec -pubout | jwker > key.pub.jwk) \

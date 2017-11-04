@@ -41,7 +41,7 @@ func processBlock(pemBytes []byte) interface{} {
 
     keyStruct = processRSAPrivate(key)
   case "EC PARAMETERS":
-    // The EC PARAMETERS section appears to not be needed:
+    // The EC PARAMETERS section appears to not be needed…
     ecKey, _ := findPemBlock(rest)
 
     if ecKey.Type != "EC PRIVATE KEY" {
