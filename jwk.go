@@ -11,7 +11,8 @@ type JWK struct {
 }
 
 func jwkToPem(jwkBytes []byte) string {
-  return "Not implemented"
+  throwParseError("JWK parsing is not implemented yet :(")
+  return ""
 }
 
 func structToJWK(keyStruct interface{}) string {
