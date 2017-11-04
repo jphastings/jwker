@@ -5,7 +5,7 @@ import (
 )
 
 type ECPublic struct {
-  KeyType string `json:"kty"`
+  *JWK
   Curve string `json:"crv"`
   X string `json:"x"`
   Y string `json:"y"`
@@ -13,7 +13,7 @@ type ECPublic struct {
 
 func processECPublic(key *ecdsa.PublicKey) *ECPublic {
   return &ECPublic{
-    KeyType: "EC",
+    JWK: &JWK{KeyType: "EC"},
     Curve: key.Params().Name,
     X: asn1b64Encode(key.X),
     Y: asn1b64Encode(key.Y),

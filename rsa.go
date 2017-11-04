@@ -5,15 +5,13 @@ import (
 )
 
 type RSAPublic struct {
-  KeyType string `json:"kty"`
+  *JWK
   Modulus string `json:"n"`
   PublicExponent string `json:"e"`
 }
 
 type RSAPrivate struct {
-  KeyType string `json:"kty"`
-  Modulus string `json:"n"`
-  PublicExponent string `json:"e"`
+  *RSAPublic
   PrivateExponent string `json:"d"`
   Prime1 string `json:"p"`
   Prime2 string `json:"q"`
@@ -24,7 +22,7 @@ type RSAPrivate struct {
 
 func processRSAPublic(key *rsa.PublicKey) *RSAPublic {
   return &RSAPublic{
-    KeyType: "RSA",
+    JWK: &JWK{KeyType: "RSA"},
     Modulus: asn1b64Encode(key.N),
     PublicExponent: asn1b64Encode(key.E),
   }
@@ -32,9 +30,7 @@ func processRSAPublic(key *rsa.PublicKey) *RSAPublic {
 
 func processRSAPrivate(key *rsa.PrivateKey) *RSAPrivate {
   return &RSAPrivate{
-    KeyType: "RSA",
-    Modulus: asn1b64Encode(key.N),
-    PublicExponent: asn1b64Encode(key.E),
+    RSAPublic: processRSAPublic(&key.PublicKey),
     PrivateExponent: asn1b64Encode(key.D),
     Prime1: asn1b64Encode(key.Primes[0]),
     Prime2: asn1b64Encode(key.Primes[1]),

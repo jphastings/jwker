@@ -6,6 +6,10 @@ import (
   "os"
 )
 
+type JWK struct {
+  KeyType string `json:"kty"`
+}
+
 func jwkToPem(jwkBytes []byte) string {
   return "Not implemented"
 }
