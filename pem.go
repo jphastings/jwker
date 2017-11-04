@@ -17,7 +17,9 @@ func findPemBlock(pemBytes []byte) *pem.Block {
   // Only get the first PEM block
   pemBlock, _ := pem.Decode(pemBytes)
 
-  // TODO: no PEM block
+  if pemBlock == nil {
+    throwParseError("invalid PEM file format.")
+  }
 
   if (x509.IsEncryptedPEMBlock(pemBlock)) {
     throwParseError("the given PEM file is encrypted. Please decrypt first.")
@@ -32,8 +34,12 @@ func processBlock(pemBlock *pem.Block) interface{} {
   switch pemBlock.Type  {
   case "PUBLIC KEY":
     keyStruct = processPublicKey(pemBlock.Bytes)
+  case "RSA PRIVATE KEY":
+    key, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+    stopOnParseError(err)
+    keyStruct = processRSAPrivate(key)
   default:
-    throwParseError("unsupported PEM block")
+    throwParseError("unsupported PEM type.")
   }
 
   return keyStruct
@@ -51,7 +57,7 @@ func processPublicKey(bytes []byte) interface{} {
   case *ecdsa.PublicKey:
     keyStruct = processECPublic(key)
   default:
-    throwParseError("Unknown key type")
+    throwParseError("Unknown key type.")
   }
 
   return keyStruct

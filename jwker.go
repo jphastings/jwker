@@ -32,6 +32,7 @@ func main() {
   case 123:
     fmt.Print(jwkToPem(bytes))
   default:
+    fmt.Print(bytes[0])
     throwParseError("unknown input file format")
   }
 
