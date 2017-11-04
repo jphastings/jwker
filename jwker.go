@@ -7,7 +7,7 @@ import (
 )
 
 func usage() {
-  fmt.Print(`jkwer: a PEM <-> JWK conversion tool
+  fmt.Print(`jwker: a PEM <-> JWK conversion tool
 
 Example usage:
   jwker key.pem > key.jwk
