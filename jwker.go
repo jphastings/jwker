@@ -6,12 +6,15 @@ import (
   "os"
 )
 
-func usage() {
-  fmt.Print(`jwker: a PEM <-> JWK conversion tool
+const version = "v0.1.0"
 
+func usage() {
+  fmt.Print(
+    fmt.Sprintf("jwker: a PEM -> JWK conversion tool (%v)\n", version) +
+    `
 Example usage:
   jwker key.pem > key.jwk
-  jwker key.jwk > key.pem
+  cat key.pem | jwker > key.jwk
 
 Create a new keypair, save the public key as a JWK and
 the private key as a PEM, but with a passphrase:
