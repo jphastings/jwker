@@ -1,5 +1,7 @@
 # Jwker
 
+[![Circle-CI build status](https://circleci.com/gh/jphastings/jwker.png?style=shield)](https://circleci.com/gh/jphastings/jwker)
+
 This is a command line tool to easily convert keys between the PEM and JWK file formats.
 
 ## Usage
