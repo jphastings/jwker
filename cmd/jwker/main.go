@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/jphastings/jwker"
 )
 
-func usage() {
+func usage(exitCode int) {
 	fmt.Print(`jwker: a PEM -> JWK conversion tool
 
 Example usage:
@@ -22,15 +22,45 @@ the private key as a PEM, but with a passphrase:
   | tee >(openssl ec -pubout | jwker > key.pub.jwk) \
   | openssl ec -aes256 -out key.prv.pem
 `)
-	os.Exit(-1)
+	os.Exit(exitCode)
+}
+
+func check(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	}
 }
 
 func main() {
-	bytes, err := loadFile()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to load file: %v\n", err)
-		os.Exit(1)
+	var in *os.File
+	var out *os.File
+	var err error
+
+	switch len(os.Args) {
+	case 1:
+		in = os.Stdin
+		out = os.Stdout
+	case 2:
+		out = os.Stdout
+		in, err = os.Open(os.Args[1])
+		check(err)
+	case 3:
+		in, err = os.Open(os.Args[1])
+		check(err)
+		out, err = os.OpenFile(os.Args[2], os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+		check(err)
+	default:
+		usage(1)
 	}
+
+	fileStat, err := in.Stat()
+	check(err)
+	if fileStat.Size() == 0 {
+		usage(-1)
+	}
+
+	bytes, err := io.ReadAll(in)
+	check(err)
 
 	switch bytes[0] {
 	case 45: // ASCII "-"
@@ -39,40 +69,28 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Unable to parse PEM: %v\n", err)
 			os.Exit(1)
 		}
-		str, err := jwk.String()
+		jwkStr, err := jwk.String()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Internal issue with stringifying JWK: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Internal issue: %v\n", err)
 			os.Exit(2)
 		}
-		fmt.Print(str)
+		fmt.Fprintf(out, "%s", jwkStr)
 	case 123: // ASCII "{"
-		fmt.Fprintln(os.Stderr, "JWK to PEM conversion isn't supported yet)")
-		os.Exit(2)
+		jwk, err := jwker.ParseJWK(bytes)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to parse JWK: %v\n", err)
+			os.Exit(1)
+		}
+		pem, err := jwk.PEM()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Internal issue: %v\n", err)
+			os.Exit(2)
+		}
+		fmt.Fprintf(out, "%s", pem)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown file format (starting with '%s')\n", string(bytes[0]))
 		os.Exit(1)
 	}
 
 	os.Exit(0)
-}
-
-func loadFile() ([]byte, error) {
-	file := os.Stdin
-	if len(os.Args) > 1 {
-		namedFile, err := os.Open(os.Args[1])
-		if err != nil {
-			return nil, err
-		}
-		file = namedFile
-	}
-
-	fileStat, err := file.Stat()
-	if err != nil {
-		return nil, err
-	}
-	if fileStat.Size() == 0 {
-		usage()
-	}
-
-	return ioutil.ReadAll(file)
 }
