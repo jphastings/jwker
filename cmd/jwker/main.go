@@ -8,12 +8,9 @@ import (
 	"github.com/jphastings/jwker"
 )
 
-const version = "v0.2.0"
-
 func usage() {
-	fmt.Print(
-		fmt.Sprintf("jwker: a PEM -> JWK conversion tool (%v)\n", version) +
-			`
+	fmt.Print(`jwker: a PEM -> JWK conversion tool
+
 Example usage:
   jwker key.pem > key.jwk
   cat key.pem | jwker > key.jwk
