@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// ParsePEM parses the bytes of an unencrypted PEM file and produces a *JWK struct.
 func ParsePEM(pemBytes []byte) (*JWK, error) {
 	for len(pemBytes) > 0 {
 		pemBlock, rest := pem.Decode(pemBytes)

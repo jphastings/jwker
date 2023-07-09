@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// JWK represents a (simplified version of a) JSON Web Key.
 type JWK struct {
 	KeyType string `json:"kty"`
 
@@ -28,6 +29,7 @@ type JWK struct {
 	Coefficient string `json:"qi,omitempty"`
 }
 
+// String returns the JSON representation of the JWK.
 func (j *JWK) String() (string, error) {
 	jwk, err := json.Marshal(j)
 	if err != nil {
@@ -37,6 +39,7 @@ func (j *JWK) String() (string, error) {
 	return string(jwk), nil
 }
 
+// ParseJWK parses the bytes of a JWK file and provides a *JWK struct.
 func ParseJWK(bytes []byte) (*JWK, error) {
 	jwk := &JWK{}
 	err := json.Unmarshal(bytes, jwk)

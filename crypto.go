@@ -8,6 +8,9 @@ import (
 	"fmt"
 )
 
+// PublicKeyToJWK converts any public key type created by the crypto x509 package
+// into a JWK. This includes *rsa.PublicKey, *dsa.PublicKey, *ecdsa.PublicKey,
+// ed25519.PublicKey (not a pointer), or *ecdh.PublicKey (for X25519).
 func PublicKeyToJWK(key any) (*JWK, error) {
 	switch key := key.(type) {
 	case *rsa.PublicKey:
@@ -23,6 +26,9 @@ func PublicKeyToJWK(key any) (*JWK, error) {
 	}
 }
 
+// PrivateKeyToJWK converts any private key type created by the crypto x509 package
+// into a JWK. This includes *rsa.PublicKey, *ecdsa.PublicKey,
+// ed25519.PublicKey (not a pointer), and *ecdh.PublicKey.
 func PrivateKeyToJWK(key any) (*JWK, error) {
 	switch key := key.(type) {
 	case *rsa.PrivateKey:
