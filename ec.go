@@ -1,33 +1,30 @@
-package main
+package jwker
 
 import (
-  "crypto/ecdsa"
+	"crypto/ecdsa"
+	"crypto/x509"
 )
 
-type ECPublic struct {
-  *JWK
-  Curve string `json:"crv"`
-  X string `json:"x"`
-  Y string `json:"y"`
+func ecPublic(key *ecdsa.PublicKey) *JWK {
+	return &JWK{
+		KeyType: "EC",
+		Curve:   key.Params().Name,
+		X:       b64EncodeBigInt(key.X),
+		Y:       b64EncodeBigInt(key.Y),
+	}
 }
 
-type ECPrivate struct {
-  *ECPublic
-  D string `json:"d"`
+func ecPrivate(key *ecdsa.PrivateKey) *JWK {
+	jwk := ecPublic(&key.PublicKey)
+	jwk.D = b64EncodeBigInt(key.D)
+	return jwk
 }
 
-func processECPublic(key *ecdsa.PublicKey) *ECPublic {
-  return &ECPublic{
-    JWK: &JWK{KeyType: "EC"},
-    Curve: key.Params().Name,
-    X: b64EncodeBigInt(key.X),
-    Y: b64EncodeBigInt(key.Y),
-  }
-}
+func processECPrivate(bytes []byte) (*JWK, error) {
+	key, err := x509.ParseECPrivateKey(bytes)
+	if err != nil {
+		return nil, err
+	}
 
-func processECPrivate(key *ecdsa.PrivateKey) *ECPrivate {
-  return &ECPrivate{
-    ECPublic: processECPublic(&key.PublicKey),
-    D: b64EncodeBigInt(key.D),
-  }
+	return ecPrivate(key), nil
 }

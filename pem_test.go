@@ -1,28 +1,41 @@
-package main
+package jwker_test
 
 import (
-  "testing"
-  "io/ioutil"
+	"io/ioutil"
+	"testing"
+
+	"github.com/jphastings/jwker"
 )
 
-func TestPemToJwkEC(t *testing.T) {
-  pemBytes, _ := ioutil.ReadFile("test_data/ec.pem")
-  jwkBytes, _ := ioutil.ReadFile("test_data/ec.jwk")
+func TestParsePEM(t *testing.T) {
+	algos := []string{
+		"ec", "rsa", "ed25519", "x25519",
+		"ec.pub", "rsa.pub", "ed25519.pub", "x25519.pub",
+	}
 
-  result := PemToJwk(pemBytes)
+	for _, algo := range algos {
+		t.Run(algo, func(t *testing.T) {
+			pemBytes, err := ioutil.ReadFile("test_data/" + algo + ".pem")
+			if err != nil {
+				t.Fatal("failed to read PEM fixture:", err)
+			}
+			jwkBytes, err := ioutil.ReadFile("test_data/" + algo + ".jwk")
+			if err != nil {
+				t.Fatal("failed to read JWK fixture:", err)
+			}
 
-  if result != string(jwkBytes) {
-    t.Error("output EC jwk does not match fixture:", result)
-  }
-}
+			jwk, err := jwker.ParsePEM(pemBytes)
+			if err != nil {
+				t.Fatal("failed to convert PEM to JWK:", err)
+			}
+			jwkStr, err := jwk.String()
+			if err != nil {
+				t.Fatal("failed to stringify JWK:", err)
+			}
 
-func TestPemToJwkRSA(t *testing.T) {
-  pemBytes, _ := ioutil.ReadFile("test_data/rsa.pem")
-  jwkBytes, _ := ioutil.ReadFile("test_data/rsa.jwk")
-
-  result := PemToJwk(pemBytes)
-
-  if result != string(jwkBytes) {
-    t.Error("output RSA jwk does not match fixture:", result)
-  }
+			if jwkStr != string(jwkBytes) {
+				t.Error("output JWK does not match fixture:", jwkStr)
+			}
+		})
+	}
 }

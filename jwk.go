@@ -1,27 +1,48 @@
-package main
+package jwker
 
 import (
-  "fmt"
-  "encoding/json"
-  "os"
+	"encoding/json"
+	"fmt"
 )
 
 type JWK struct {
-  KeyType string `json:"kty"`
+	KeyType string `json:"kty"`
+
+	// EC, Public
+	Curve string `json:"crv,omitempty"`
+	X     string `json:"x,omitempty"`
+	Y     string `json:"y,omitempty"`
+
+	// RSA, Public
+	Modulus        string `json:"n,omitempty"`
+	PublicExponent string `json:"e,omitempty"`
+
+	// EC & RSA, Private
+	D string `json:"d,omitempty"`
+
+	// RSA, Private
+	Prime1      string `json:"p,omitempty"`
+	Prime2      string `json:"q,omitempty"`
+	Exponent1   string `json:"dp,omitempty"`
+	Exponent2   string `json:"dq,omitempty"`
+	Coefficient string `json:"qi,omitempty"`
 }
 
-func JwkToPem(jwkBytes []byte) string {
-  throwParseError("JWK parsing is not implemented yet :(")
-  return ""
+func (j *JWK) String() (string, error) {
+	jwk, err := json.Marshal(j)
+	if err != nil {
+		return "", fmt.Errorf("could not render JSON: %v", err)
+	}
+
+	return string(jwk), nil
 }
 
-func structToJWK(keyStruct interface{}) string {
-  jwk, err := json.Marshal(keyStruct)
+func ParseJWK(bytes []byte) (*JWK, error) {
+	jwk := &JWK{}
+	err := json.Unmarshal(bytes, jwk)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse JWK: %v", err)
+	}
 
-  if (err != nil) {
-    fmt.Fprintf(os.Stderr, "error: could not render JSON (%v)", err)
-    os.Exit(4)
-  }
-
-  return string(jwk)
+	return jwk, nil
 }

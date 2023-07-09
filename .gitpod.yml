@@ -1,7 +1,0 @@
-image: gitpod/workspace-full
-
-vscode:
-  extensions:
-    - premparihar.gotestexplorer
-tasks:
-  - init: go get -v -t -d ./...

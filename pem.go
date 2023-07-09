@@ -1,78 +1,44 @@
-package main
+package jwker
 
 import (
-  "crypto/ecdsa"
-  "crypto/rsa"
-  "crypto/x509"
-  "encoding/pem"
+	"encoding/pem"
+	"fmt"
 )
 
-func PemToJwk(pemBytes []byte) string {
-  keyStruct := processBlock(pemBytes)
-  return structToJWK(keyStruct)
+func ParsePEM(pemBytes []byte) (*JWK, error) {
+	for len(pemBytes) > 0 {
+		pemBlock, rest := pem.Decode(pemBytes)
+		if pemBlock == nil {
+			return nil, fmt.Errorf("invalid PEM file")
+		}
+		pemBytes = rest
+
+		pr, ok := blockProcessors[pemBlock.Type]
+		if !ok {
+			return nil, fmt.Errorf("unsupported PEM block type: %s", pemBlock.Type)
+		}
+
+		jwk, err := pr(pemBlock.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		if jwk == nil {
+			continue
+		}
+		return jwk, nil
+	}
+
+	return nil, fmt.Errorf("no supported PEM block found")
 }
 
-func findPemBlock(pemBytes []byte) (*pem.Block, []byte) {
-  // Only get the first PEM block
-  pemBlock, rest := pem.Decode(pemBytes)
+type processor func([]byte) (*JWK, error)
 
-  if pemBlock == nil {
-    throwParseError("invalid PEM file format.")
-  }
+var skipBlock processor = func([]byte) (*JWK, error) { return nil, nil }
 
-  if (x509.IsEncryptedPEMBlock(pemBlock)) {
-    throwParseError("the given PEM file is encrypted. Please decrypt first.")
-  }
-
-  return pemBlock, rest
-}
-
-func processBlock(pemBytes []byte) interface{} {
-  pemBlock, rest := findPemBlock(pemBytes)
-
-  var keyStruct interface{}
-
-  switch pemBlock.Type {
-  case "PUBLIC KEY":
-    keyStruct = processPublicKey(pemBlock.Bytes)
-  case "RSA PRIVATE KEY":
-    key, err := x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
-    stopOnParseError(err)
-
-    keyStruct = processRSAPrivate(key)
-  case "EC PARAMETERS":
-    // The EC PARAMETERS section appears to not be needed…
-    ecKey, _ := findPemBlock(rest)
-
-    if ecKey.Type != "EC PRIVATE KEY" {
-      throwParseError("unsupported EC PEM format.")
-    }
-
-    key, err := x509.ParseECPrivateKey(ecKey.Bytes)
-    stopOnParseError(err)
-
-    keyStruct = processECPrivate(key)
-  default:
-    throwParseError("unsupported PEM type.")
-  }
-
-  return keyStruct
-}
-
-func processPublicKey(bytes []byte) interface{} {
-  key, err := x509.ParsePKIXPublicKey(bytes)
-  stopOnParseError(err)
-
-  var keyStruct interface{}
-
-  switch key := key.(type) {
-  case *rsa.PublicKey:
-    keyStruct = processRSAPublic(key)
-  case *ecdsa.PublicKey:
-    keyStruct = processECPublic(key)
-  default:
-    throwParseError("Unknown key type.")
-  }
-
-  return keyStruct
+var blockProcessors = map[string]processor{
+	"PUBLIC KEY":      processPKIXPublicKey,
+	"PRIVATE KEY":     processPKCS8PrivateKey,
+	"RSA PRIVATE KEY": processRSAPrivate,
+	"EC PARAMETERS":   skipBlock,
+	"EC PRIVATE KEY":  processECPrivate,
 }
