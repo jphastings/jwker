@@ -8,9 +8,20 @@ import (
 	"github.com/jphastings/jwker"
 )
 
-func usage(exitCode int) {
-	fmt.Print(`jwker: a PEM -> JWK conversion tool
+var (
+	version string = "v0.0.0-dev"
+	commit  string = ""
+	date    string = ""
+)
 
+func usage(exitCode int) {
+	buildDetails := ""
+	if commit != "" {
+		buildDetails = fmt.Sprintf("-%s (%s)", commit, date)
+	}
+
+	fmt.Printf("jwker: a PEM -> JWK conversion tool. %s%s\n", version, buildDetails)
+	fmt.Println(`
 Example usage:
   jwker key.pem > key.jwk
   cat key.pem | jwker > key.jwk
@@ -20,8 +31,7 @@ the private key as a PEM, but with a passphrase:
 
   openssl ecparam -genkey -name prime256v1 \
   | tee >(openssl ec -pubout | jwker > key.pub.jwk) \
-  | openssl ec -aes256 -out key.prv.pem
-`)
+  | openssl ec -aes256 -out key.prv.pem`)
 	os.Exit(exitCode)
 }
 

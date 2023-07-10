@@ -4,6 +4,8 @@ before:
     - go mod tidy
 builds:
   - main: ./cmd/jwker
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}} -X main.date={{.Date}}
     env:
       - CGO_ENABLED=0
     goos:
@@ -26,6 +28,46 @@ archives:
     format_overrides:
     - goos: windows
       format: zip
+
+brews:
+  - name: jwker
+    download_strategy: CurlDownloadStrategy
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: Formula
+    homepage: "https://github.com/jphastings/jwker/"
+
+    description: "Easily convert between PEM and JWK files."
+    license: "MIT"
+
+    custom_block: |
+      resource("testdata.pem") do
+        url "https://raw.githubusercontent.com/jphastings/jwker/main/test_data/x25519.pem"
+        sha256 "546a61cc1eb31e336be056bde9ed1ad417f09fde3beb551f24406b043b5ce69a"
+      end
+      resource("testdata.jwk") do
+        url "https://raw.githubusercontent.com/jphastings/jwker/main/test_data/x25519.jwk"
+        sha256 "f8d83d7dc2f1b6e4d6e4869b75352660e1f35619b96a2b3efa01648ea428903d"
+      end
+
+    test: |
+      resource("testdata.pem").stage do
+        resource("testdata.jwk").stage do
+          assert_match File.read("testdata.jwk"), shell_output("#{bin}/jwker testdata.pem")
+        end
+      end
+
+    repository:
+      owner: jphastings
+      name: homebrew-tools
+      branch: main
+      token: "{{ .Env.HOMEBREW_PAT }}"
+
+      pull_request:
+        enabled: false
 
 checksum:
   name_template: 'checksums.txt'
