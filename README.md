@@ -33,5 +33,5 @@ cat my-key.jwk | jwker
 If you have go installed:
 
 ```bash
-go install github.com/jphastings/jwker@latest
+go install github.com/jphastings/jwker/cmd/jwker@latest
 ```
