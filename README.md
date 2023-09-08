@@ -30,7 +30,13 @@ cat my-key.jwk | jwker
 
 ## Installation
 
-If you have go installed:
+If you have [homebrew](https://brew.sh/) installed:
+
+```bash
+brew install jphastings/tools/jwker
+```
+
+Or, if you have go installed:
 
 ```bash
 go install github.com/jphastings/jwker/cmd/jwker@latest
