@@ -69,6 +69,25 @@ brews:
       pull_request:
         enabled: false
 
+nix:
+  - name: jwker
+    homepage: "https://github.com/jphastings/jwker/"
+    description: "Easily convert between PEM and JWK files."
+    license: "MIT"
+
+    commit_author:
+      name: goreleaserbot
+      email: jwker.github.bot@byjp.me
+
+    repository:
+      owner: jphastings
+      name: nixpkgs
+      branch: main
+      token: "{{ .Env.HOMEBREW_PAT }}"
+
+      pull_request:
+        enabled: false
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:
