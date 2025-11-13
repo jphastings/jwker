@@ -1,6 +1,6 @@
 module github.com/jphastings/jwker
 
-go 1.20
+go 1.24.9
 
 require github.com/stretchr/testify v1.8.4
 

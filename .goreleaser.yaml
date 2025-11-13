@@ -1,3 +1,4 @@
+version: 2
 project_name: jwker
 before:
   hooks:
@@ -17,7 +18,7 @@ builds:
       - arm64
 
 archives:
-  - format: tar.gz
+  - formats: [tar.gz]
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
@@ -27,7 +28,7 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
     - goos: windows
-      format: zip
+      formats: [zip]
 
 brews:
   - name: jwker
@@ -37,7 +38,7 @@ brews:
       email: bot@goreleaser.com
 
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: Formula
+    directory: Formula
     homepage: "https://github.com/jphastings/jwker/"
 
     description: "Easily convert between PEM and JWK files."
@@ -73,7 +74,7 @@ nix:
   - name: jwker
     homepage: "https://github.com/jphastings/jwker/"
     description: "Easily convert between PEM and JWK files."
-    license: "MIT"
+    license: "mit"
 
     commit_author:
       name: goreleaserbot
@@ -91,7 +92,7 @@ nix:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
